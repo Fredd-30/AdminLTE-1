@@ -4,6 +4,7 @@
 *
 *  This file is copyright under the latest version of the EUPL.
 *  Please see LICENSE file for your rights under this license. */
+
 $(function () {
 	$("[data-static]").on("click", function(){
 		var row = $(this).closest("tr");
@@ -147,11 +148,11 @@ function loadCacheInfo()
         }
 
         // Fill table with obtained values
-        $("#cache-size").text(parseInt(data["cacheinfo"]["cache-size"]));
-        $("#cache-inserted").text(parseInt(data["cacheinfo"]["cache-inserted"]));
+        $("#cache-size").text(parseInt(data.cacheinfo["cache-size"]));
+        $("#cache-inserted").text(parseInt(data.cacheinfo["cache-inserted"]));
 
         // Highlight early cache removals when present
-        var cachelivefreed = parseInt(data["cacheinfo"]["cache-live-freed"]);
+        var cachelivefreed = parseInt(data.cacheinfo["cache-live-freed"]);
         $("#cache-live-freed").text(cachelivefreed);
         if(cachelivefreed > 0)
         {
@@ -192,7 +193,7 @@ $(document).ready(function() {
 		});
 	}
     //call draw() on each table... they don't render properly with scrollX and scrollY set... ¯\_(ツ)_/¯
-    $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+    $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function () {
         leasetable.draw();
         staticleasetable.draw();
     });

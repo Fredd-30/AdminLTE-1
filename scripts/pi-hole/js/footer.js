@@ -4,6 +4,7 @@
 *
 *  This file is copyright under the latest version of the EUPL.
 *  Please see LICENSE file for your rights under this license. */
+
 //The following functions allow us to display time until pi-hole is enabled after disabling.
 //Works between all pages
 
@@ -133,11 +134,11 @@ $("#pihole-disable-custom").on("click", function(e){
 
 // Session timer
 var sessionvalidity = parseInt(document.getElementById("sessiontimercounter").textContent);
-var start = new Date;
+var start = new Date();
 
 function updateSessionTimer()
 {
-    start = new Date;
+    start = new Date();
     start.setSeconds(start.getSeconds() + sessionvalidity);
 }
 
@@ -147,7 +148,7 @@ if(sessionvalidity > 0)
     updateSessionTimer();
 
     setInterval(function() {
-        var current = new Date;
+        var current = new Date();
         var totalseconds = (start - current) / 1000;
 
         // var hours = Math.floor(totalseconds / 3600);

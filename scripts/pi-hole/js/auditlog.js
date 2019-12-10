@@ -10,22 +10,22 @@ var auditList = [], auditTimeout;
 
 // Credit: http://stackoverflow.com/questions/1787322/htmlspecialchars-equivalent-in-javascript/4835406#4835406
 function escapeHtml(text) {
-  var map = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "\"": "&quot;",
-    "'": "&#039;"
-  };
+    var map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+    };
 
-  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    return text.replace(/[&<>"']/g, function(m) {
+        return map[m];
+    });
 }
 
 function updateTopLists() {
     $.getJSON("api.php?topItems=audit", function(data) {
-
-        if("FTLnotrunning" in data)
-        {
+        if ("FTLnotrunning" in data) {
             return;
         }
 
@@ -36,29 +36,26 @@ function updateTopLists() {
         var adtable = $("#ad-frequency").find("tbody:last");
         var url, domain;
         for (domain in data.top_queries) {
-            if (Object.prototype.hasOwnProperty.call(data.top_queries,domain)){
+            if (Object.prototype.hasOwnProperty.call(data.top_queries, domain)) {
                 // Sanitize domain
                 domain = escapeHtml(domain);
-                url = "<a href=\"queries.php?domain="+domain+"\">"+domain+"</a>";
+                url = "<a href=\"queries.php?domain=" + domain + "\">" + domain + "</a>";
                 domaintable.append("<tr> <td>" + url +
                     "</td> <td>" + data.top_queries[domain] + "</td> <td> <button class=\"text-red text-nowrap\"><i class=\"fa fa-ban\"></i> Blacklist</button> <button class=\"text-orange text-nowrap\"><i class=\"fa fa-balance-scale\"></i> Audit</button> </td> </tr> ");
             }
         }
 
         for (domain in data.top_ads) {
-            if (Object.prototype.hasOwnProperty.call(data.top_ads,domain)){
+            if (Object.prototype.hasOwnProperty.call(data.top_ads, domain)) {
                 var input = domain.split(" ");
                 // Sanitize domain
                 var printdomain = escapeHtml(input[0]);
-                if(input.length > 1)
-                {
-                    url = "<a href=\"queries.php?domain="+printdomain+"\">"+printdomain+"</a> (wildcard blocked)";
+                if (input.length > 1) {
+                    url = "<a href=\"queries.php?domain=" + printdomain + "\">" + printdomain + "</a> (wildcard blocked)";
                     adtable.append("<tr> <td>" + url +
                     "</td> <td>" + data.top_ads[domain] + "</td> <td> <button class=\"text-orange text-nowrap\"><i class=\"fa fa-balance-scale\"></i> Audit</button> </td> </tr> ");
-                }
-                else
-                {
-                    url = "<a href=\"queries.php?domain="+printdomain+"\">"+printdomain+"</a>";
+                } else {
+                    url = "<a href=\"queries.php?domain=" + printdomain + "\">" + printdomain + "</a>";
                     adtable.append("<tr> <td>" + url +
                     "</td> <td>" + data.top_ads[domain] + "</td> <td> <button class=\"text-green text-nowrap\"><i class=\"fas fa-check\"></i> Whitelist</button> <button class=\"text-orange text-nowrap\"><i class=\"fa fa-balance-scale\"></i> Audit</button> </td> </tr> ");
                 }
@@ -72,44 +69,37 @@ function updateTopLists() {
     });
 }
 
-function add(domain,list) {
+function add(domain, list) {
     var token = $("#token").html();
     $.ajax({
         url: "scripts/pi-hole/php/add.php",
         method: "post",
-        data: {"domain":domain, "list":list, "token":token}
+        data: { "domain": domain, "list": list, "token": token }
     });
 }
 
 $(document).ready(function() {
-
     // Pull in data via AJAX
     updateTopLists();
 
-    $("#domain-frequency tbody").on( "click", "button", function () {
-        var url = ($(this).parents("tr"))[0].textContent.split("	")[0];
-        if($(this).context.textContent === " Blacklist")
-        {
-            add(url,"audit");
-            add(url,"black");
+    $("#domain-frequency tbody").on("click", "button", function() {
+        var url = $(this).parents("tr")[0].textContent.split("	")[0];
+        if ($(this).context.textContent === " Blacklist") {
+            add(url, "audit");
+            add(url, "black");
             $("#gravityBtn").prop("disabled", false);
-        }
-        else
-        {
+        } else {
             auditUrl(url);
         }
     });
 
-    $("#ad-frequency tbody").on( "click", "button", function () {
-        var url = ($(this).parents("tr"))[0].textContent.split("	")[0].split(" ")[0];
-        if($(this).context.textContent === " Whitelist")
-        {
-            add(url,"audit");
-            add(url,"white");
+    $("#ad-frequency tbody").on("click", "button", function() {
+        var url = $(this).parents("tr")[0].textContent.split("	")[0].split(" ")[0];
+        if ($(this).context.textContent === " Whitelist") {
+            add(url, "audit");
+            add(url, "white");
             $("#gravityBtn").prop("disabled", false);
-        }
-        else
-        {
+        } else {
             auditUrl(url);
         }
     });
@@ -119,14 +109,16 @@ function auditUrl(url) {
     if (auditList.indexOf(url) > -1) {
         return;
     }
+
     if (auditTimeout) {
         clearTimeout(auditTimeout);
     }
+
     auditList.push(url);
     // wait 3 seconds to see if more domains need auditing
     // and batch them all into a single request
     auditTimeout = setTimeout(function() {
-        add(auditList.join(' '), "audit");
+        add(auditList.join(" "), "audit");
         auditList = [];
     }, 3000);
 }

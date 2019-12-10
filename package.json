@@ -33,43 +33,30 @@
       "**/vendor/**"
     ],
     "rules": {
-      "indent": "off",
       "radix": "off",
       "no-alert": "off",
       "new-cap": "off",
       "max-params": "off",
       "no-mixed-operators": "off",
-      "max-statements-per-line": "off",
-      "array-bracket-spacing": "off",
-      "space-before-blocks": "off",
-      "padded-blocks": "off",
-      "key-spacing": "off",
-      "space-in-parens": "off",
-      "space-infix-ops": "off",
-      "padding-line-between-statements": "off",
-      "keyword-spacing": "off",
-      "comma-spacing": "off",
-      "brace-style": "off",
       "capitalized-comments": "off",
       "camelcase": "off",
-      "curly": "off",
       "no-negated-condition": "off",
       "object-curly-spacing": [
-        "off",
+        "error",
         "always"
       ],
       "one-var": "off",
       "one-var-declaration-per-line": "off",
       "quotes": [
-        "off",
+        "error",
         "double"
       ],
       "quote-props": [
-        "off",
+        "error",
         "consistent"
       ],
       "space-before-function-paren": [
-        "off",
+        "error",
         "never"
       ],
       "spaced-comment": "off",

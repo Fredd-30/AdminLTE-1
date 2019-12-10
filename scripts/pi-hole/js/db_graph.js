@@ -8,47 +8,46 @@
 /* global Chart:false, moment:false */
 
 var start__ = moment().subtract(6, "days");
-var from = moment(start__).utc().valueOf()/1000;
+var from = moment(start__).utc().valueOf() / 1000;
 var end__ = moment();
-var until = moment(end__).utc().valueOf()/1000;
+var until = moment(end__).utc().valueOf() / 1000;
 
 var timeoutWarning = $("#timeoutWarning");
 
 var dateformat = "MMMM Do YYYY, HH:mm";
 
-$(function () {
+$(function() {
     $("#querytime").daterangepicker(
-    {
-      timePicker: true, timePickerIncrement: 15,
-      locale: { format: dateformat },
-      startDate: start__, endDate: end__,
-      ranges: {
-        "Today": [moment().startOf("day"), moment()],
-        "Yesterday": [moment().subtract(1, "days").startOf("day"), moment().subtract(1, "days").endOf("day")],
-        "Last 7 Days": [moment().subtract(6, "days"), moment()],
-        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-        "This Month": [moment().startOf("month"), moment()],
-        "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
-        "This Year": [moment().startOf("year"), moment()],
-        "All Time": [moment(0), moment()]
-      },
-      "opens": "center", "showDropdowns": true,
-      "autoUpdateInput": false
-    },
-    function (startt, endt) {
-      from = moment(startt).utc().valueOf()/1000;
-      until = moment(endt).utc().valueOf()/1000;
-    });
-
+        {
+            "timePicker": true, "timePickerIncrement": 15,
+            "locale": { format: dateformat },
+            "startDate": start__, "endDate": end__,
+            "ranges": {
+                "Today": [moment().startOf("day"), moment()],
+                "Yesterday": [moment().subtract(1, "days").startOf("day"), moment().subtract(1, "days").endOf("day")],
+                "Last 7 Days": [moment().subtract(6, "days"), moment()],
+                "Last 30 Days": [moment().subtract(29, "days"), moment()],
+                "This Month": [moment().startOf("month"), moment()],
+                "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+                "This Year": [moment().startOf("year"), moment()],
+                "All Time": [moment(0), moment()]
+            },
+            "opens": "center", "showDropdowns": true,
+            "autoUpdateInput": false
+        },
+        function(startt, endt) {
+            from = moment(startt).utc().valueOf() / 1000;
+            until = moment(endt).utc().valueOf() / 1000;
+        });
 });
 
 function padNumber(num) {
-    return ("00" + num).substr(-2,2);
+    return ("00" + num).substr(-2, 2);
 }
 
 // Helper function needed for converting the Objects to Arrays
 
-function objectToArray(p){
+function objectToArray(p) {
     var keys = Object.keys(p);
     keys.sort(function(a, b) {
         return a - b;
@@ -59,20 +58,20 @@ function objectToArray(p){
         arr.push(p[keys[i]]);
         idx.push(keys[i]);
     }
-    return [idx,arr];
+
+    return [idx, arr];
 }
 
 var timeLineChart;
 
 function compareNumbers(a, b) {
-  return a - b;
+    return a - b;
 }
 
 function updateQueriesOverTime() {
     $("#queries-over-time .overlay").show();
     timeoutWarning.show();
-    $.getJSON("api_db.php?getGraphData&from="+from+"&until="+until, function(data) {
-
+    $.getJSON("api_db.php?getGraphData&from=" + from + "&until=" + until, function(data) {
         // convert received objects to arrays
         data.domains_over_time = objectToArray(data.domains_over_time);
         data.ads_over_time = objectToArray(data.ads_over_time);
@@ -91,8 +90,7 @@ function updateQueriesOverTime() {
 
         for (hour in data.ads_over_time[0]) {
             if (Object.prototype.hasOwnProperty.call(data.ads_over_time[0], hour)) {
-                if(!dates.includes(parseInt(data.ads_over_time[0][hour])))
-                {
+                if (!dates.includes(parseInt(data.ads_over_time[0][hour]))) {
                     dates.push(parseInt(data.ads_over_time[0][hour]));
                 }
             }
@@ -104,17 +102,15 @@ function updateQueriesOverTime() {
         for (hour in dates) {
             if (Object.prototype.hasOwnProperty.call(dates, hour)) {
                 var d, dom = 0, ads = 0;
-                d = new Date(1000*dates[hour]);
+                d = new Date(1000 * dates[hour]);
 
                 var idx = data.domains_over_time[0].indexOf(dates[hour].toString());
-                if (idx > -1)
-                {
+                if (idx > -1) {
                     dom = data.domains_over_time[1][idx];
                 }
 
                 idx = data.ads_over_time[0].indexOf(dates[hour].toString());
-                if (idx > -1)
-                {
+                if (idx > -1) {
                     ads = data.ads_over_time[1][idx];
                 }
 
@@ -124,7 +120,7 @@ function updateQueriesOverTime() {
             }
         }
 
-        timeLineChart.options.scales.xAxes[0].display=true;
+        timeLineChart.options.scales.xAxes[0].display = true;
         $("#queries-over-time .overlay").hide();
         timeoutWarning.hide();
         timeLineChart.update();
@@ -136,7 +132,7 @@ $(document).ready(function() {
     timeLineChart = new Chart(ctx, {
         type: "line",
         data: {
-            labels: [ 0 ],
+            labels: [0],
             datasets: [
                 {
                     label: "Total DNS Queries",
@@ -173,23 +169,22 @@ $(document).ready(function() {
                     title: function(tooltipItem) {
                         var label = tooltipItem[0].xLabel;
                         var time = new Date(label);
-                        var date = time.getFullYear()+"-"+padNumber(time.getMonth()+1)+"-"+padNumber(time.getDate());
+                        var date = time.getFullYear() + "-" + padNumber(time.getMonth() + 1) + "-" + padNumber(time.getDate());
                         var h = time.getHours();
                         var m = time.getMinutes();
-                        var from = padNumber(h)+":"+padNumber(m)+":00";
-                        var to = padNumber(h)+":"+padNumber(m+9)+":59";
-                        return "Queries from "+from+" to "+to+" on "+date;
+                        var from = padNumber(h) + ":" + padNumber(m) + ":00";
+                        var to = padNumber(h) + ":" + padNumber(m + 9) + ":59";
+                        return "Queries from " + from + " to " + to + " on " + date;
                     },
                     label: function(tooltipItems, data) {
-                        if(tooltipItems.datasetIndex === 1)
-                        {
+                        if (tooltipItems.datasetIndex === 1) {
                             var percentage = 0.0;
                             var total = parseInt(data.datasets[0].data[tooltipItems.index]);
                             var blocked = parseInt(data.datasets[1].data[tooltipItems.index]);
-                            if(total > 0)
-                            {
-                                percentage = 100.0*blocked/total;
+                            if (total > 0) {
+                                percentage = 100.0 * blocked / total;
                             }
+
                             return data.datasets[tooltipItems.datasetIndex].label + ": " + tooltipItems.yLabel + " (" + percentage.toFixed(1) + "%)";
                         }
 
@@ -206,13 +201,13 @@ $(document).ready(function() {
                     display: false,
                     time: {
                         displayFormats: {
-                           "minute": "HH:mm",
-                           "hour": "HH:mm",
-                           "day": "HH:mm",
-                           "week": "MMM DD HH:mm",
-                           "month": "MMM DD",
-                           "quarter": "MMM DD",
-                           "year": "MMM DD"
+                            "minute": "HH:mm",
+                            "hour": "HH:mm",
+                            "day": "HH:mm",
+                            "week": "MMM DD HH:mm",
+                            "month": "MMM DD",
+                            "quarter": "MMM DD",
+                            "year": "MMM DD"
                         }
                     }
                 }],
@@ -233,10 +228,9 @@ $("#querytime").on("apply.daterangepicker", function(ev, picker) {
     updateQueriesOverTime();
 });
 
-$("#queryOverTimeChart").click(function(evt){
+$("#queryOverTimeChart").click(function(evt) {
     var activePoints = timeLineChart.getElementAtEvent(evt);
-    if(activePoints.length > 0)
-    {
+    if (activePoints.length > 0) {
         //get the internal index in the chart
         var clickedElementindex = activePoints[0]._index;
 
@@ -244,9 +238,10 @@ $("#queryOverTimeChart").click(function(evt){
         var label = timeLineChart.data.labels[clickedElementindex];
 
         //get value by index
-        var from = label/1000;
-        var until = label/1000 + 600;
-        window.location.href = "db_queries.php?from="+from+"&until="+until;
+        var from = label / 1000;
+        var until = label / 1000 + 600;
+        window.location.href = "db_queries.php?from=" + from + "&until=" + until;
     }
+
     return false;
 });

@@ -16,6 +16,7 @@ function eventsource() {
         ta.html("Updating lists of ad-serving domains is not supported with this browser!");
         return;
     }
+
     var source = new EventSource("scripts/pi-hole/php/gravity.sh.php");
 
     ta.html("");
@@ -24,49 +25,45 @@ function eventsource() {
     alSuccess.hide();
 
     source.addEventListener("message", function(e) {
-        if(e.data.indexOf("Pi-hole blocking is") !== -1)
-        {
+        if (e.data.indexOf("Pi-hole blocking is") !== -1) {
             alSuccess.show();
         }
 
         // Detect ${OVER}
-        if(e.data.indexOf("<------") !== -1)
-        {
+        if (e.data.indexOf("<------") !== -1) {
             ta.text(ta.text().substring(0, ta.text().lastIndexOf("\n")) + "\n");
             var new_string = e.data.replace("<------", "");
             ta.append(new_string);
-        }
-        else
-        {
+        } else {
             ta.append(e.data);
         }
-
     }, false);
 
     // Will be called when script has finished
     source.addEventListener("error", function() {
-        alInfo.delay(1000).fadeOut(2000, function() { alInfo.hide(); });
+        alInfo.delay(1000).fadeOut(2000, function() {
+            alInfo.hide();
+        });
         source.close();
         $("#gravityBtn").removeAttr("disabled");
     }, false);
 }
 
-$("#gravityBtn").on("click", function(){
+$("#gravityBtn").on("click", function() {
     $("#gravityBtn").attr("disabled", true);
     eventsource();
 });
 
 // Handle hiding of alerts
-$(function(){
-    $("[data-hide]").on("click", function(){
+$(function() {
+    $("[data-hide]").on("click", function() {
         $(this).closest("." + $(this).attr("data-hide")).hide();
     });
 
     // Do we want to start updating immediately?
     // gravity.php?go
     var searchString = window.location.search.substring(1);
-    if(searchString.indexOf("go") !== -1)
-    {
+    if (searchString.indexOf("go") !== -1) {
         $("#gravityBtn").attr("disabled", true);
         eventsource();
     }

@@ -11,13 +11,12 @@ var offset, timer, pre, scrolling = true;
 var interval = 200;
 
 // Function that asks the API for new data
-function reloadData(){
+function reloadData() {
     clearTimeout(timer);
-    $.getJSON("scripts/pi-hole/php/tailLog.php?offset="+offset, function (data)
-    {
+    $.getJSON("scripts/pi-hole/php/tailLog.php?offset=" + offset, function(data) {
         pre.append(data.lines);
 
-        if(scrolling && offset !== data.offset) {
+        if (scrolling && offset !== data.offset) {
             pre.scrollTop(pre[0].scrollHeight);
         }
 
@@ -27,10 +26,9 @@ function reloadData(){
     timer = setTimeout(reloadData, interval);
 }
 
-$(function(){
+$(function() {
     // Get offset at first loading of page
-    $.getJSON("scripts/pi-hole/php/tailLog.php", function (data)
-    {
+    $.getJSON("scripts/pi-hole/php/tailLog.php", function(data) {
         offset = data.offset;
     });
     pre = $("#output");
@@ -39,10 +37,10 @@ $(function(){
 });
 
 $("#chk1").click(function() {
-    $("#chk2").prop("checked",this.checked);
+    $("#chk2").prop("checked", this.checked);
     scrolling = this.checked;
 });
 $("#chk2").click(function() {
-    $("#chk1").prop("checked",this.checked);
+    $("#chk1").prop("checked", this.checked);
     scrolling = this.checked;
 });

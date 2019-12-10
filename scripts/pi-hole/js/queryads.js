@@ -9,51 +9,41 @@
 
 var exact = "";
 
-function quietfilter(ta,data)
-{
+function quietfilter(ta, data) {
     var lines = data.split("\n");
-    for(var i = 0; i<lines.length; i++)
-    {
-        if(lines[i].indexOf("results") !== -1 && lines[i].indexOf("0 results") === -1)
-        {
-            var shortstring = lines[i].replace("::: /etc/pihole/","");
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i].indexOf("results") !== -1 && lines[i].indexOf("0 results") === -1) {
+            var shortstring = lines[i].replace("::: /etc/pihole/", "");
             // Remove "(x results)"
-            shortstring = shortstring.replace(/\(.*/,"");
-            ta.append(shortstring+"\n");
+            shortstring = shortstring.replace(/\(.*/, "");
+            ta.append(shortstring + "\n");
         }
     }
 }
 
 // Credit: http://stackoverflow.com/a/10642418/2087442
-function httpGet(ta,quiet,theUrl)
-{
+function httpGet(ta, quiet, theUrl) {
     var xmlhttp;
-    if (window.XMLHttpRequest)
-    {
+    if (window.XMLHttpRequest) {
     // code for IE7+
         xmlhttp = new XMLHttpRequest();
-    }
-    else
-    {
+    } else {
     // code for IE6, IE5
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    xmlhttp.onreadystatechange=function()
-    {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-        {
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             ta.show();
             ta.empty();
-            if(!quiet)
-            {
+            if (!quiet) {
                 ta.append(xmlhttp.responseText);
-            }
-            else
-            {
-                quietfilter(ta,xmlhttp.responseText);
+            } else {
+                quietfilter(ta, xmlhttp.responseText);
             }
         }
     };
+
     xmlhttp.open("GET", theUrl, false);
     xmlhttp.send();
 }
@@ -63,38 +53,33 @@ function eventsource() {
     var domain = $("#domain").val().trim();
     var q = $("#quiet");
 
-    if(domain.length === 0)
-    {
+    if (domain.length === 0) {
         return;
     }
 
     var quiet = false;
-    if(q.val() === "yes")
-    {
+    if (q.val() === "yes") {
         quiet = true;
         exact = "exact";
     }
 
     // IE does not support EventSource - load whole content at once
     if (typeof EventSource !== "function") {
-        httpGet(ta,quiet,"scripts/pi-hole/php/queryads.php?domain="+domain.toLowerCase()+exact+"&IE");
+        httpGet(ta, quiet, "scripts/pi-hole/php/queryads.php?domain=" + domain.toLowerCase() + exact + "&IE");
         return;
     }
 
-    var source = new EventSource("scripts/pi-hole/php/queryads.php?domain="+domain.toLowerCase()+"&"+exact);
+    var source = new EventSource("scripts/pi-hole/php/queryads.php?domain=" + domain.toLowerCase() + "&" + exact);
 
     // Reset and show field
     ta.empty();
     ta.show();
 
     source.addEventListener("message", function(e) {
-        if(!quiet)
-        {
+        if (!quiet) {
             ta.append(e.data);
-        }
-        else
-        {
-            quietfilter(ta,e.data);
+        } else {
+            quietfilter(ta, e.data);
         }
     }, false);
 
@@ -109,7 +94,7 @@ function eventsource() {
 
 // Handle enter button
 $(document).keypress(function(e) {
-    if(e.which === 13 && $("#domain").is(":focus")) {
+    if (e.which === 13 && $("#domain").is(":focus")) {
         // Enter was pressed, and the input has focus
         exact = "";
         eventsource();
@@ -127,15 +112,14 @@ $("#btnSearchExact").on("click", function() {
 });
 
 // Wrap form-group's buttons to next line when viewed on a small screen
-$(window).on("resize",function() {
+$(window).on("resize", function() {
     if ($(window).width() < 991) {
         $(".form-group.input-group").removeClass("input-group").addClass("input-group-block");
         $(".form-group.input-group-block > input").css("margin-bottom", "5px");
         $(".form-group.input-group-block > .input-group-btn").removeClass("input-group-btn").addClass("btn-block text-center");
-    }
-    else {
-        $(".form-group.input-group-block").removeClass("input-group-block").addClass( "input-group" );
-        $(".form-group.input-group > input").css("margin-bottom","");
+    } else {
+        $(".form-group.input-group-block").removeClass("input-group-block").addClass("input-group");
+        $(".form-group.input-group > input").css("margin-bottom", "");
         $(".form-group.input-group > .btn-block.text-center").removeClass("btn-block text-center").addClass("input-group-btn");
     }
 });
